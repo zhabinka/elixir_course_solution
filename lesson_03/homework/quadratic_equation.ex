@@ -14,7 +14,18 @@ defmodule QuadraticEquation do
   :no_roots
   """
   def solve(a, b, c) do
-    # TODO add your implementation
+    case discriminant(a, b, c) do
+      d when d < 0 -> :no_roots
+      0 -> {:root, -b / (2 * a)}
+      d -> 
+        root1 = (-b + :math.sqrt(d)) / (2 * a)
+        root2 = (-b - :math.sqrt(d)) / (2 * a)
+        {:roots, root1, root2}
+    end
+  end
+
+  defp discriminant(a, b, c) do
+    b ** 2 - 4 * a * c
   end
 
 end
