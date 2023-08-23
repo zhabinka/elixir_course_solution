@@ -21,7 +21,9 @@ defmodule WordCount do
   {2, 4, 20}
   """
   def count(data) do
-    # TODO add your implementation
+    lines = String.split(data, "\n")
+    words_count = Enum.map(lines, fn(l) -> length(String.split(l)) end) |> Enum.sum
+    {length(lines), words_count, String.length(data)}
   end
 
 end
