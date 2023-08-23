@@ -18,3 +18,28 @@ IntExample.gcd(-5, 55) |> IO.puts
 IntExample.gcd(5, -55) |> IO.puts
 IntExample.gcd(0, 5) |> IO.puts
 IntExample.gcd(5, 0) |> IO.puts
+
+ExUnit.start()
+
+defmodule IntExample_Test do
+  use ExUnit.Case
+  import IntExample
+
+  test "gcd" do
+    assert gcd(12, 9) == 3
+    assert gcd(60, 48) == 12
+  end
+
+  test "gcd with negative numbers" do
+    assert gcd(24, 18) == 6
+    assert gcd(-24, 18) == 6
+    assert gcd(24, -18) == 6
+    assert gcd(-24, -18) == 6
+  end
+
+  test "gcd with zero" do
+    assert gcd(12, 0) == 12
+    assert gcd(0, 11) == 11
+    assert gcd(0, 0) == 0
+  end
+end
