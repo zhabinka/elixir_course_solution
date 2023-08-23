@@ -1,4 +1,7 @@
 defmodule IntExample do
+  def gcd(a, b) when a < 0 or b < 0 do
+    gcd(abs(a), abs(b))
+  end
   def gcd(a, b) do
     case rem(a, b) do
       0 -> b
@@ -8,3 +11,5 @@ defmodule IntExample do
 end
 
 IntExample.gcd(5, 55) |> IO.puts
+IntExample.gcd(-5, 55) |> IO.puts
+IntExample.gcd(5, -55) |> IO.puts
