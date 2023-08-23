@@ -4,6 +4,10 @@ defmodule ListExample do
   """
   @spec merge(list(), list()) :: list()
   def merge(list1, list2) do
+    if list1 != Enum.sort(list1) or list2 != Enum.sort(list2) do
+      raise SortError
+    end
+
     merge(list1, list2, [])
   end
 
@@ -38,4 +42,13 @@ defmodule ListExampleTest do
     assert [1, 2, 3] == merge([], [1, 2, 3])
     assert [1, 2, 3] == merge([1, 2, 3], [])
   end
+
+  test "merge, lists in arguments are not sorted" do
+    assert_raise SortError, fn -> merge([1, 3, 2], [4, 5]) end
+    assert_raise SortError, fn -> merge([6, 7], [10, 8, 9]) end
+  end
+end
+
+defmodule SortError do
+  defexception message: "lists must be sorted"
 end
