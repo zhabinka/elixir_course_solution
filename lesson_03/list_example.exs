@@ -30,8 +30,7 @@ defmodule ListExample do
       [] -> true
       [element] -> true
       [first | tail] -> 
-        [second | _] = tail
-        if first <= second do
+        if first <= Enum.at(tail, 0) do
           sort(tail)
         else
           false
@@ -50,7 +49,8 @@ defmodule ListExampleTest do
   test "sort" do
     assert sort([])    
     assert sort([1])
-    assert sort([1, 2, 3, 4])    
+    assert sort([1, 2, 3])    
+    assert sort([1, 2, 2, 3, 4])    
     assert not sort([5, 6, 7, 9, 8])    
   end
 
