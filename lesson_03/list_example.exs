@@ -4,7 +4,7 @@ defmodule ListExample do
   """
   @spec merge(list(), list()) :: list()
   def merge(list1, list2) do
-    if !sort(list1) or !sort(list2) do
+    if !sorted?(list1) or !sorted?(list2) do
       raise SortError
     end
 
@@ -25,13 +25,13 @@ defmodule ListExample do
     end
   end
 
-  def sort(list) do
+  def sorted?(list) do
     case list do
       [] -> true
       [element] -> true
       [first | tail] -> 
         if first <= Enum.at(tail, 0) do
-          sort(tail)
+          sorted?(tail)
         else
           false
         end
@@ -47,11 +47,11 @@ defmodule ListExampleTest do
   import ListExample
 
   test "sort" do
-    assert sort([])    
-    assert sort([1])
-    assert sort([1, 2, 3])    
-    assert sort([1, 2, 2, 3, 4])    
-    assert not sort([5, 6, 7, 9, 8])    
+    assert sorted?([])    
+    assert sorted?([1])
+    assert sorted?([1, 2, 3])    
+    assert sorted?([1, 2, 2, 3, 4])    
+    assert not sorted?([5, 6, 7, 9, 8])    
   end
 
   test "merge" do
