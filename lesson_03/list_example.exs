@@ -25,16 +25,13 @@ defmodule ListExample do
     end
   end
 
-  def sorted?(list) do
-    case list do
-      [] -> true
-      [element] -> true
-      [first | tail] -> 
-        if first <= Enum.at(tail, 0) do
-          sorted?(tail)
-        else
-          false
-        end
+  def sorted?([]), do: true
+  def sorted?([element]), do: true
+  def sorted?([first, second | tail]) do
+    if first <= second do
+      sorted?([second | tail])
+    else
+      false
     end
   end
 
