@@ -27,13 +27,8 @@ defmodule ListExample do
 
   def sorted?([]), do: true
   def sorted?([_]), do: true
-  def sorted?([first, second | tail]) do
-    if first <= second do
-      sorted?([second | tail])
-    else
-      false
-    end
-  end
+  def sorted?([a, b | tail]) when a <= b, do: sorted?([b | tail])
+  def sorted?(_), do: false
 
 end
 
