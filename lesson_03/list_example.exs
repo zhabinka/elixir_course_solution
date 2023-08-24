@@ -4,7 +4,7 @@ defmodule ListExample do
   """
   @spec merge(list(), list()) :: list()
   def merge(list1, list2) do
-    if list1 != Enum.sort(list1) or list2 != Enum.sort(list2) do
+    if !sort(list1) or !sort(list2) do
       raise SortError
     end
 
@@ -24,6 +24,21 @@ defmodule ListExample do
       merge(list1, tail2, [head2 | acc])
     end
   end
+
+  def sort(list) do
+    case list do
+      [] -> true
+      [element] -> true
+      [first | tail] -> 
+        [second | _] = tail
+        if first <= second do
+          sort(tail)
+        else
+          false
+        end
+    end
+  end
+
 end
 
 ExUnit.start()
@@ -31,6 +46,13 @@ ExUnit.start()
 defmodule ListExampleTest do
   use ExUnit.Case
   import ListExample
+
+  test "sort" do
+    assert sort([])    
+    assert sort([1])
+    assert sort([1, 2, 3, 4])    
+    assert not sort([5, 6, 7, 9, 8])    
+  end
 
   test "merge" do
     assert [1, 2, 3, 4, 5] == merge([1, 3], [2, 4, 5])
