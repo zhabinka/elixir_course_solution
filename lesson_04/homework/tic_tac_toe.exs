@@ -16,9 +16,8 @@ defmodule TicTacToe do
 
   defp is_valid_values(list) do
     list
-      # |> Enum.map(fn(el) -> el in [:x, :o, :f] end)
-      # |> Enum.reduce(true, fn(el, acc) -> acc and el end)
-      |> Enum.reduce(true, fn(el, acc) -> acc and el in [:x, :o, :f] end)
+      |> Enum.map(fn(el) -> el in [:x, :o, :f] end)
+      |> Enum.all?
   end
 
   @spec check_who_win(game_state) :: game_result
