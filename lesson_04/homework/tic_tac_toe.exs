@@ -9,15 +9,13 @@ defmodule TicTacToe do
   def valid_game?(state) do
     case state do
       {{a, b, c}, {d, e, f}, {g, h, i}} ->
-        is_valid_values([a, b, c, d, e, f, g, h, i])
+        [a, b, c, d, e, f, g, h, i] |> Enum.map(&valid?/1) |> Enum.all?
       _ -> false
     end
   end
 
-  defp is_valid_values(list) do
-    list
-      |> Enum.map(fn(el) -> el in [:x, :o, :f] end)
-      |> Enum.all?
+  defp valid?(value) do
+    value in [:x, :o, :f]
   end
 
   @spec check_who_win(game_state) :: game_result
