@@ -56,18 +56,18 @@ defmodule CodeStat do
   end
 
   def get_files(path) do
-    # cond do
-    #   File.regular?(path) ->
-    #     [path]
-    #
-    #   File.dir?(path) ->
-    #     File.ls!(path)
-    #     |> Enum.map(&Path.join(path, &1))
-    #     |> Enum.map(&get_files/1)
-    #     |> List.flatten()
-    # end
+    cond do
+      File.regular?(path) ->
+        [path]
 
-    Path.wildcard(path <> "/**/*.*")
+      File.dir?(path) ->
+        File.ls!(path)
+        |> Enum.map(&Path.join(path, &1))
+        |> Enum.map(&get_files/1)
+        |> List.flatten()
+    end
+
+    # Path.wildcard(path <> "/**/*.*")
   end
 end
 
