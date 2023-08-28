@@ -1,9 +1,9 @@
 defmodule WorldChamp do
-
   def sample_champ() do
     [
       {
-        :team, "Crazy Bulls",
+        :team,
+        "Crazy Bulls",
         [
           {:player, "Big Bull", 22, 545, 99},
           {:player, "Small Bull", 18, 324, 95},
@@ -16,7 +16,8 @@ defmodule WorldChamp do
         ]
       },
       {
-        :team, "Cool Horses",
+        :team,
+        "Cool Horses",
         [
           {:player, "Lazy Horse", 21, 423, 80},
           {:player, "Sleepy Horse", 23, 101, 35},
@@ -29,7 +30,8 @@ defmodule WorldChamp do
         ]
       },
       {
-        :team, "Fast Cows",
+        :team,
+        "Fast Cows",
         [
           {:player, "Flash Cow", 18, 56, 34},
           {:player, "Cow Bow", 28, 89, 90},
@@ -42,7 +44,8 @@ defmodule WorldChamp do
         ]
       },
       {
-        :team, "Fury Hens",
+        :team,
+        "Fury Hens",
         [
           {:player, "Ben The Hen", 57, 403, 83},
           {:player, "Hen Hen", 20, 301, 56},
@@ -55,7 +58,8 @@ defmodule WorldChamp do
         ]
       },
       {
-        :team, "Extinct Monsters",
+        :team,
+        "Extinct Monsters",
         [
           {:player, "T-Rex", 21, 999, 99},
           {:player, "Velociraptor", 29, 656, 99},
@@ -70,18 +74,52 @@ defmodule WorldChamp do
     ]
   end
 
-
   def get_stat(champ) do
-    # TODO add your implementation
+    {
+      length(champ),
+      Enum.map(champ, &count_player/1) |> Enum.sum(),
+      Enum.sum(Enum.map(champ, &get_average_age/1)) / length(champ),
+      Enum.sum(Enum.map(champ, &get_average_rating/1)) / length(champ)
+    }
   end
 
+  def count_player({:team, _name, players}) do
+    length(players)
+  end
+
+  def get_average_age({:team, _name, players} = team) do
+    total_age = Enum.sum(Enum.map(players, fn {:player, _, age, _, _} -> age end))
+    total_age / count_player(team)
+  end
+
+  def get_average_rating({:team, _name, players} = team) do
+    total_rating = Enum.sum(Enum.map(players, fn {:player, _, _, rating, _} -> rating end))
+    total_rating / count_player(team)
+  end
 
   def examine_champ(champ) do
-    # TODO add your implementation
+    champ
+    |> Enum.map(&filter_sick_players/1)
+    |> Enum.filter(fn team -> count_player(team) >= 5 end)
+  end
+
+  def filter_sick_players({:team, name, players}) do
+    f = fn {:player, _, _, _, health} -> health >= 50 end
+    healthy_players = Enum.filter(players, f)
+    {:team, name, healthy_players}
   end
 
   def make_pairs(team1, team2) do
-    # TODO add your implementation
-  end
+    {:team, team_name1, players1} = team1
+    {:team, team_name2, players2} = team2
 
+    p1 =
+      players1 |> Enum.map(fn {:player, name, _, rating, _} -> {name, rating, team_name1} end)
+
+    p2 =
+      players2 |> Enum.map(fn {:player, name, _, rating, _} -> {name, rating, team_name2} end)
+
+    for {n1, r1, t1} <- p1, {n2, r2, t2} <- p2, r1 + r2 > 600, do: {n1, n2}
+  end
 end
+
