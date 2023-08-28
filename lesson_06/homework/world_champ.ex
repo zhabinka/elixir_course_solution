@@ -104,7 +104,7 @@ defmodule WorldChamp do
   end
 
   def filter_weak_players({:team, name, players}) do
-    filter = fn {:player, _, _, _, health} -> health >= 50 end
+    f = fn {:player, _, _, _, health} -> health >= 50 end
     healthy_players = Enum.filter(players, f)
     {:team, name, healthy_players}
   end
