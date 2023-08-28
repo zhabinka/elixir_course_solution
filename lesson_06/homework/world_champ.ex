@@ -99,12 +99,12 @@ defmodule WorldChamp do
 
   def examine_champ(champ) do
     champ
-    |> Enum.map(&filter_sick_players/1)
+    |> Enum.map(&filter_weak_players/1)
     |> Enum.filter(fn team -> count_player(team) >= 5 end)
   end
 
-  def filter_sick_players({:team, name, players}) do
-    f = fn {:player, _, _, _, health} -> health >= 50 end
+  def filter_weak_players({:team, name, players}) do
+    filter = fn {:player, _, _, _, health} -> health >= 50 end
     healthy_players = Enum.filter(players, f)
     {:team, name, healthy_players}
   end
