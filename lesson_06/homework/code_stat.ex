@@ -64,7 +64,7 @@ defmodule CodeStat do
     #     File.ls!(path)
     #     |> Enum.map(&Path.join(path, &1))
     #     |> Enum.map(&get_files/1)
-    #     |> Enum.concat true -> []
+    #     |> List.flatten()
     # end
 
     Path.wildcard(path <> "/**/*.*")
