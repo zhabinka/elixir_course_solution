@@ -75,51 +75,50 @@ defmodule WorldChamp do
   end
 
   def get_stat(champ) do
+    players = get_players(champ)
+
     {
       length(champ),
-      Enum.map(champ, &count_player/1) |> Enum.sum(),
-      Enum.sum(Enum.map(champ, &get_average_age/1)) / length(champ),
-      Enum.sum(Enum.map(champ, &get_average_rating/1)) / length(champ)
+      length(players),
+      get_average_age(players),
+      get_average_rating(players)
     }
   end
 
-  def count_player({:team, _name, players}) do
-    length(players)
+  def get_players(champ) do
+    champ
+    |> Enum.reduce([], fn {:team, _, players}, acc -> acc ++ players end)
   end
 
-  def get_average_age({:team, _name, players} = team) do
-    total_age = Enum.sum(Enum.map(players, fn {:player, _, age, _, _} -> age end))
-    total_age / count_player(team)
+  def get_average_age(players) do
+    total_age = Enum.reduce(players, 0, fn {:player, _, age, _, _}, acc -> acc + age end)
+    total_age / length(players)
   end
 
-  def get_average_rating({:team, _name, players} = team) do
-    total_rating = Enum.sum(Enum.map(players, fn {:player, _, _, rating, _} -> rating end))
-    total_rating / count_player(team)
+  def get_average_rating(players) do
+    total_rating = Enum.reduce(players, 0, fn {:player, _, _, rating, _}, acc -> acc + rating end)
+    total_rating / length(players)
   end
 
   def examine_champ(champ) do
     champ
     |> Enum.map(&filter_weak_players/1)
-    |> Enum.filter(fn team -> count_player(team) >= 5 end)
+    |> Enum.filter(fn {:team, _, players} -> length(players) >= 5 end)
   end
 
   def filter_weak_players({:team, name, players}) do
-    f = fn {:player, _, _, _, health} -> health >= 50 end
-    healthy_players = Enum.filter(players, f)
+    filter = fn {:player, _, _, _, health} -> health >= 50 end
+    healthy_players = Enum.filter(players, filter)
     {:team, name, healthy_players}
   end
 
   def make_pairs(team1, team2) do
-    {:team, team_name1, players1} = team1
-    {:team, team_name2, players2} = team2
+    {:team, _, players1} = team1
+    {:team, _, players2} = team2
 
-    p1 =
-      players1 |> Enum.map(fn {:player, name, _, rating, _} -> {name, rating, team_name1} end)
-
-    p2 =
-      players2 |> Enum.map(fn {:player, name, _, rating, _} -> {name, rating, team_name2} end)
-
-    for {n1, r1, t1} <- p1, {n2, r2, t2} <- p2, r1 + r2 > 600, do: {n1, n2}
+    for {:player, name1, _, rating1, _} <- players1,
+        {:player, name2, _, rating2, _} <- players2,
+        rating1 + rating2 > 600,
+        do: {name1, name2}
   end
 end
-
