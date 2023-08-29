@@ -34,7 +34,7 @@ defmodule CodeStat do
     combiner = fn file, acc ->
       {lang, stat} = get_file_info(file)
 
-      Map.merge(acc, %{lang => stat}, fn _k, v1, v2 ->
+      Map.merge(acc, %{}, fn _k, v1, v2 ->
         %{files: f1, lines: l1, size: s1} = v1
         %{files: f2, lines: l2, size: s2} = v2
         %{files: f1 + f2, lines: l1 + l2, size: s1 + s2}
@@ -46,7 +46,7 @@ defmodule CodeStat do
 
   def get_type_file(path) do
     ext = Path.extname(path)
-    lang = @types |> Enum.filter(fn {lg, exts} -> ext in exts end)
+    lang = @types |> Enum.filter(fn {_, exts} -> ext in exts end)
 
     case lang do
       [{lg, _}] -> lg
