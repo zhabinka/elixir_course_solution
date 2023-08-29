@@ -32,12 +32,11 @@ defmodule CodeStat do
       end)
 
     combiner = fn file, acc ->
-      {lang, stat} = get_file_info(file)
+      {lang, %{files: f, lines: l, size: s} = stat} = get_file_info(file)
 
-      Map.merge(acc, %{}, fn _k, v1, v2 ->
-        %{files: f1, lines: l1, size: s1} = v1
-        %{files: f2, lines: l2, size: s2} = v2
-        %{files: f1 + f2, lines: l1 + l2, size: s1 + s2}
+      Map.update(acc, lang, stat, fn value ->
+        %{files: files, lines: lines, size: size} = value
+        %{files: files + f, lines: lines + l, size: size + s}
       end)
     end
 
