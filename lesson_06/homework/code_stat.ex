@@ -12,7 +12,7 @@ defmodule CodeStat do
     {"Docs", [".md"]}
   ]
 
-  @ignore_names [".git", ".gitignore", ".idea", "_build", "deps", "log", "tmp", ".formatter.exs"]
+  @ignore_names [".git", ".gitignore", ".idea", "_build", "deps", "log", ".formatter.exs"]
 
   @ignore_extensions [".beam", ".lock", ".iml", ".log", ".pyc"]
 
@@ -21,38 +21,46 @@ defmodule CodeStat do
   def analyze(path) do
     files =
       get_files(path)
-      |> Enum.filter(fn file -> Path.extname(file) not in @ignore_extensions end)
+      |> Enum.filter(fn file ->
+        Path.extname(file) not in @ignore_extensions and
+          Path.basename(file) not in @ignore_names
+      end)
 
-    f = fn exts -> Enum.filter(files, fn file -> Path.extname(file) in exts end) end
+    init =
+      Enum.reduce(@types, %{}, fn {lang, _}, acc ->
+        Map.put(acc, lang, %{files: 0, lines: 0, size: 0})
+      end)
 
-    types =
-      @types
-      |> Enum.map(fn {lang, exts} -> {lang, f.(exts)} end)
+    combiner = fn file, acc ->
+      {lang, stat} = get_file_info(file)
 
-    extentions = @types |> Enum.reduce([], fn {_, exts}, acc -> acc ++ exts end)
-
-    other =
-      files |> Enum.filter(fn file -> Path.extname(file) not in extentions end)
-
-    langs = types ++ [{"Other", other}]
-
-    langs
-    |> Enum.map(fn {lang, files} -> {lang, get_files_info(files)} end)
-    |> Enum.reduce(%{}, fn {lang, stat}, acc -> Map.merge(acc, %{lang => stat}) end)
-  end
-
-  def get_files_info(files) do
-    init_acc = %{files: 0, lines: 0, size: 0}
-
-    reducer = fn path, %{files: files, lines: lines, size: size} ->
-      {:ok, %{size: current_size}} = File.stat(path)
-      {:ok, contents} = File.read(path)
-      current_lines_count = contents |> String.split("\n") |> length
-      %{files: files + 1, lines: lines + current_lines_count, size: size + current_size}
+      Map.merge(acc, %{lang => stat}, fn _k, v1, v2 ->
+        %{files: f1, lines: l1, size: s1} = v1
+        %{files: f2, lines: l2, size: s2} = v2
+        %{files: f1 + f2, lines: l1 + l2, size: s1 + s2}
+      end)
     end
 
-    files
-    |> Enum.reduce(init_acc, reducer)
+    files |> Enum.reduce(init, combiner)
+  end
+
+  def get_type_file(path) do
+    ext = Path.extname(path)
+    lang = @types |> Enum.filter(fn {lg, exts} -> ext in exts end)
+
+    case lang do
+      [{lg, _}] -> lg
+      [] -> "Other"
+    end
+  end
+
+  def get_file_info(path) do
+    {:ok, %{size: size}} = File.stat(path)
+    {:ok, contents} = File.read(path)
+    lines_count = contents |> String.split("\n") |> length
+    type = get_type_file(path)
+
+    {type, %{files: 1, lines: lines_count, size: size}}
   end
 
   def get_files(path) do
@@ -66,8 +74,5 @@ defmodule CodeStat do
         |> Enum.map(&get_files/1)
         |> List.flatten()
     end
-
-    # Path.wildcard(path <> "/**/*.*")
   end
 end
-
