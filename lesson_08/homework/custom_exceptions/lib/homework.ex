@@ -23,7 +23,7 @@ defmodule Homework do
         element
 
       :error ->
-        nil
+        raise IndexOutOfBoundsError, {index, length(list)}
     end
   end
 
