@@ -28,7 +28,7 @@ defmodule Homework do
       element = get_from_list!(list, index)
       {:ok, element}
     rescue
-      error in IndexOutOfBoundsError -> {:error, Exception.message(error)}
+      error -> {:error, Exception.message(error)}
     end
   end
 
@@ -43,7 +43,7 @@ defmodule Homework do
       resulting_list = get_many_from_list!(list, indices)
       {:ok, resulting_list}
     rescue
-      error in IndexOutOfBoundsError -> {:error, Exception.message(error)}
+      error -> {:error, Exception.message(error)}
     end
   end
 end
