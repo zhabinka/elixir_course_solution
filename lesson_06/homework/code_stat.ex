@@ -24,31 +24,30 @@ defmodule CodeStat do
         Map.put(acc, lang, %{files: 0, lines: 0, size: 0})
       end)
 
-    analyze(path, initial)
+    {:ok, items} = File.ls(path)
+
+    items
+    |> Enum.filter(fn item ->
+      Path.basename(item) not in @ignore_names and
+        Path.extname(item) not in @ignore_extensions
+    end)
+    |> Enum.reduce(
+      initial,
+      fn item, acc ->
+        Map.merge(acc, traversal(path, item), &merge_stat/3)
+      end
+    )
   end
 
-  def analyze(path, acc) do
+  def traversal(path, item) do
+    full_path = Path.join(path, item)
+
     cond do
-      Path.basename(path) in @ignore_names ->
-        %{}
+      File.regular?(full_path) ->
+        get_file_info(full_path)
 
-      Path.extname(path) in @ignore_extensions ->
-        %{}
-
-      File.regular?(path) ->
-        file_stat = get_file_info(path)
-        Map.merge(acc, file_stat, &merge_stat/3)
-
-      File.dir?(path) ->
-        File.ls!(path)
-        # |> Enum.map(fn dir -> Path.join(path, dir) end)
-        |> Enum.map(&Path.join(path, &1))
-        |> Enum.reduce(
-          acc,
-          fn dir, nested ->
-            Map.merge(nested, analyze(dir, acc), &merge_stat/3)
-          end
-        )
+      File.dir?(full_path) ->
+        analyze(full_path)
     end
   end
 
@@ -76,44 +75,4 @@ defmodule CodeStat do
       [] -> "Other"
     end
   end
-
-  # def _analyze(path) do
-  #   initial =
-  #     Enum.reduce(@types, %{}, fn {lang, _}, acc ->
-  #       Map.put(acc, lang, %{files: 0, lines: 0, size: 0})
-  #     end)
-  #
-  #   traversal(get_files(path), initial)
-  # end
-
-  # def get_files(path) do
-  #   cond do
-  #     Path.basename(path) in @ignore_names ->
-  #       %{}
-  #
-  #     Path.extname(path) in @ignore_extensions ->
-  #       %{}
-  #
-  #     File.regular?(path) ->
-  #       get_file_info(path)
-  #
-  #     File.dir?(path) ->
-  #       File.ls!(path)
-  #       |> Enum.map(&Path.join(path, &1))
-  #       |> Enum.map(&get_files/1)
-  #   end
-  # end
-  #
-  # def traversal([], acc), do: acc
-  #
-  # def traversal([[head | children] | siblings], acc) do
-  #   new_acc = Map.merge(acc, head, &merge_lang/3)
-  #
-  #   traversal(siblings ++ children, new_acc)
-  # end
-  #
-  # def traversal([head | tail], acc) do
-  #   new_acc = Map.merge(acc, head, &merge_lang/3)
-  #   traversal(tail, new_acc)
-  # end
 end
