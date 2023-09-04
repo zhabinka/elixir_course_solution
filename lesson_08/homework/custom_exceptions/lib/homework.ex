@@ -43,7 +43,7 @@ defmodule Homework do
     Enum.map(indices, fn index -> get_from_list!(list, index) end)
   end
 
-  @spec get_many_from_list!([any()], [integer()]) :: {:ok, [any()]} | {:error, String.t()}
+  @spec get_many_from_list([any()], [integer()]) :: {:ok, [any()]} | {:error, String.t()}
   def get_many_from_list(list, indices) do
     try do
       resulting_list = get_many_from_list!(list, indices)
