@@ -51,7 +51,7 @@ defmodule Homework do
       {:ok, []},
       fn
         _, {:error, _} = acc -> acc
-        {:ok, v}, {:ok, acc} -> {:ok, acc ++ [v]}
+        {:ok, value}, {:ok, acc} -> {:ok, acc ++ [value]}
         {:error, _} = e, _ -> e
       end
     )
