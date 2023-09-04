@@ -45,11 +45,19 @@ defmodule Homework do
 
   @spec get_many_from_list([any()], [integer()]) :: {:ok, [any()]} | {:error, String.t()}
   def get_many_from_list(list, indices) do
-    try do
-      resulting_list = get_many_from_list!(list, indices)
-      {:ok, resulting_list}
-    rescue
-      error -> {:error, Exception.message(error)}
-    end
+    Enum.map(indices, fn index ->
+      case get_from_list(list, index) do
+        {:ok, value} -> {:ok, value}
+        {:error, message} -> {:error, message}
+      end
+    end)
+    |> Enum.reduce(
+      {:ok, []},
+      fn
+        _, {:error, _} = acc -> acc
+        {:ok, v}, {:ok, acc} -> {:ok, acc ++ [v]}
+        {:error, _} = e, _ -> e
+      end
+    )
   end
 end
