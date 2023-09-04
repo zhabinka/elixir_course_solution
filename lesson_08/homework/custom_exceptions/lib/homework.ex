@@ -15,10 +15,11 @@ end
 defmodule Homework do
   @spec get_from_list!([any()], integer()) :: any()
   def get_from_list!(list, index) do
-    case Enum.fetch(list, index) do
-      _ when index < 0 ->
-        raise IndexOutOfBoundsError, {index, length(list)}
+    if index < 0 do
+      raise IndexOutOfBoundsError, {index, length(list)}
+    end
 
+    case Enum.fetch(list, index) do
       {:ok, element} ->
         element
 
