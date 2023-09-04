@@ -47,7 +47,12 @@ defmodule Homework do
   def get_many_from_list(list, indices) do
     indices
     |> Enum.map(fn index -> get_from_list(list, index) end)
-    |> Enum.reduce(
+    |> sequence()
+  end
+
+  def sequence(list) do
+    Enum.reduce(
+      list,
       {:ok, []},
       fn
         _, {:error, _} = acc -> acc
