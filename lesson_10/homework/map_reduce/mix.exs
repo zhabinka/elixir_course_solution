@@ -20,7 +20,8 @@ defmodule MapReduce.MixProject do
 
   defp deps do
     [
-      {:dialyxir, "~> 1.1", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.1", only: [:dev], runtime: false},
+      {:csv, "~> 3.0"}
     ]
   end
 end
