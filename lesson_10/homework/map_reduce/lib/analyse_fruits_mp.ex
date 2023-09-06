@@ -26,7 +26,6 @@ defmodule AnalyseFruitsMP do
   def start(files, processes_per_level \\ 4) do
     # TODO add your implementation
     process_tree = build_processes_tree(files, processes_per_level)
-    IO.inspect(process_tree)
     AnalyseFruitsMP.Coordinator.start(process_tree)
   end
 
