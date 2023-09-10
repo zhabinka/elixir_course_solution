@@ -20,10 +20,18 @@ defmodule PathFinder do
 
   # Server Callbacks
   def init(file_name) do
-    state = init_state(file_name)
-    IO.puts("server init with #{inspect(self())}")
+    state = %{data_file: file_name}
+    IO.puts("init in server process #{inspect(self())}")
     IO.inspect(state)
-    {:ok, state}
+    {:ok, state, {:continue, :delayed_init}}
+  end
+
+  def handle_continue(:delayed_init, state) do
+    %{data_file: data_file} = state
+    new_state = init_state(data_file)
+    IO.puts("handle_continue in server process #{inspect(self())}")
+    IO.inspect(new_state)
+    {:noreply, new_state}
   end
 
   def handle_call({:get_route, from_city, to_city}, _from, state) do
