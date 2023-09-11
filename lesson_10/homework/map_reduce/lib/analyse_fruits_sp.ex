@@ -18,6 +18,12 @@ defmodule AnalyseFruitsSP do
   def start(files) do
     # TODO add your implementation
     files
+    |> process()
+    |> aggregate()
+  end
+
+  def process(files) do
+    files
     |> Enum.map(fn path ->
       path
       |> File.stream!()
@@ -26,6 +32,9 @@ defmodule AnalyseFruitsSP do
         Map.put(acc, fruit, String.to_integer(count))
       end)
     end)
-    |> Enum.reduce(%{}, fn item, acc -> Map.merge(acc, item, fn _k, v1, v2 -> v1 + v2 end) end)
+  end
+
+  def aggregate(maps) do
+    Enum.reduce(maps, %{}, fn item, acc -> Map.merge(acc, item, fn _k, v1, v2 -> v1 + v2 end) end)
   end
 end
