@@ -17,11 +17,11 @@ defmodule PathFinderService do
 
     @impl true
     def init(:no_args) do
+      priv_dir = Application.app_dir(:path_finder_service, "priv")
+      file_name = Path.join(priv_dir, "cities.csv")
+
       child_spec = [
-        {
-          PathFinder,
-          "./priv/cities.csv"
-        }
+        {PathFinder, file_name}
       ]
 
       IO.puts("RootSup.init, child_spec: #{inspect(child_spec)}")
