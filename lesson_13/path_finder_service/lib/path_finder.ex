@@ -3,9 +3,11 @@ defmodule PathFinder do
 
   use GenServer
 
+  require Logger
+
   # Client API
   def start_link(file_name) do
-    IO.puts("#{@server_name} start from #{inspect(self())}")
+    Logger.info("#{@server_name} start from #{inspect(self())}")
     GenServer.start(__MODULE__, file_name, name: @server_name)
   end
 
@@ -20,7 +22,7 @@ defmodule PathFinder do
   # Server Callbacks
   def init(file_name) do
     state = %{data_file: file_name}
-    IO.puts("init in server process #{inspect(self())}")
+    Logger.warning("init in server process #{inspect(self())}")
     IO.inspect(state)
     {:ok, state, {:continue, :delayed_init}}
   end
@@ -28,7 +30,7 @@ defmodule PathFinder do
   def handle_continue(:delayed_init, state) do
     %{data_file: data_file} = state
     new_state = init_state(data_file)
-    IO.puts("handle_continue in server process #{inspect(self())}")
+    Logger.warning("handle_continue in server process #{inspect(self())}")
     IO.inspect(new_state)
     {:noreply, new_state}
   end
