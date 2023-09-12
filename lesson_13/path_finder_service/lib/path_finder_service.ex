@@ -20,17 +20,13 @@ defmodule PathFinderService do
     @impl true
     def init(:no_args) do
       priv_dir = Application.app_dir(:path_finder_service, "priv")
-      file_name = Path.join(priv_dir, "cities.csv")
+      file_name = Application.get_env(:path_finder_service, :file_name)
+      file_path = Path.join(priv_dir, file_name)
 
-      shard_manager_state = [
-        {1, 7, "node-1"},
-        {8, 15, "node-2"},
-        {16, 23, "node-3"},
-        {24, 31, "node-4"}
-      ]
+      shard_manager_state = Application.get_env(:path_finder_service, :shard_manager_state)
 
       child_spec = [
-        {PathFinder, file_name},
+        {PathFinder, file_path},
         {ShardManager, shard_manager_state}
       ]
 
