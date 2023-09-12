@@ -1,13 +1,12 @@
 defmodule PathFinder do
-  @file_name "./data/cities.csv"
   @server_name :path_finder
 
   use GenServer
 
   # Client API
-  def start() do
+  def start_link(file_name) do
     IO.puts("#{@server_name} start from #{inspect(self())}")
-    GenServer.start(__MODULE__, @file_name, name: @server_name)
+    GenServer.start(__MODULE__, file_name, name: @server_name)
   end
 
   def get_route(from, to) do
@@ -74,10 +73,10 @@ defmodule PathFinder do
     {:noreply, state}
   end
 
-  def init_state(file) do
+  def init_state(file_name) do
     graph = :digraph.new([:cyclic])
 
-    paths = load_csv_data(file)
+    paths = load_csv_data(file_name)
     Enum.each(paths, fn item -> init_graph(graph, item) end)
 
     distances = init_distances(paths)
@@ -85,7 +84,7 @@ defmodule PathFinder do
     %{
       graph: graph,
       distances: distances,
-      data_file: @file_name
+      data_file: file_name
     }
   end
 
