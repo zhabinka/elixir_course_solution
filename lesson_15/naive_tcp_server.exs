@@ -1,4 +1,4 @@
-defmodule NaiveServer do
+defmodule NaiveTcpServer do
   def start(port \\ 1234) do
     IO.puts("Start server on port #{port}")
     {:ok, listen_socket} = :gen_tcp.listen(port, [:binary, {:active, true}])
