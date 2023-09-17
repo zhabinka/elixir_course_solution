@@ -50,7 +50,8 @@ defmodule CoolTcpServer do
 
       socket_options = [
         :binary,
-        {:active, true},
+        {:active, false},
+        {:packet, :line},
         {:reuseaddr, true}
       ]
 
@@ -109,6 +110,29 @@ defmodule CoolTcpServer do
       IO.puts("Acceptor #{state.id} is waiting client")
       {:ok, socket} = :gen_tcp.accept(state.listening_socket)
       IO.puts("Acceptor #{state.id} got client connection #{inspect(socket)}")
+      state = Map.put(state, :socket, socket)
+      {:noreply, state, {:continue, :receive_data}}
+    end
+
+    def handle_continue(:receive_data, state) do
+      IO.puts("Acceptor #{state.id} is waiting data")
+
+      case :gen_tcp.recv(state.socket, 0) do
+        {:ok, data} ->
+          IO.puts("Acceptor #{state.id} got data #{inspect(data)}")
+          :gen_tcp.send(state.socket, "Server answer: #{data}")
+          {:noreply, state, {:continue, :receive_data}}
+
+        {:error, error} ->
+          IO.puts("Acceptor #{state.id} got error #{inspect(error)}")
+          :gen_tcp.close(state.socket)
+          {:noreply, state, {:continue, :wait_for_client}}
+      end
+    end
+
+    # Catch all
+    def handle_continue(msg, state) do
+      IO.puts("Acceptor #{state.id} got unknown message #{inspect(msg)}")
       {:noreply, state}
     end
 
