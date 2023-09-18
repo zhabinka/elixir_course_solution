@@ -128,8 +128,6 @@ defmodule CoolTcpServer do
           }
 
           response_binary = :erlang.term_to_binary(response)
-          # response_size = byte_size(response_binary)
-          # data_binary = <<response_size::16>> <> response_binary
 
           :gen_tcp.send(state.socket, response_binary)
           {:noreply, state, {:continue, :receive_data}}
