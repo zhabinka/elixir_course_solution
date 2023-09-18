@@ -117,7 +117,7 @@ defmodule CoolTcpServer do
     def handle_continue(:receive_data, state) do
       IO.puts("Acceptor #{state.id} is waiting data")
 
-      case :gen_tcp.recv(state.socket, 0) do
+      case :gen_tcp.recv(state.socket, 0, 4000) do
         {:ok, data} ->
           data = :erlang.binary_to_term(data)
           IO.puts("Acceptor #{state.id} got data #{inspect(data)}")
@@ -130,6 +130,10 @@ defmodule CoolTcpServer do
           response_binary = :erlang.term_to_binary(response)
 
           :gen_tcp.send(state.socket, response_binary)
+          {:noreply, state, {:continue, :receive_data}}
+
+        {:error, :timeout} ->
+          IO.puts("Server timeout")
           {:noreply, state, {:continue, :receive_data}}
 
         {:error, error} ->
