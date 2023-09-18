@@ -51,7 +51,7 @@ defmodule CoolTcpServer do
       socket_options = [
         :binary,
         {:active, false},
-        {:packet, :raw},
+        {:packet, 2},
         {:reuseaddr, true}
       ]
 
@@ -117,10 +117,8 @@ defmodule CoolTcpServer do
     def handle_continue(:receive_data, state) do
       IO.puts("Acceptor #{state.id} is waiting data")
 
-      case :gen_tcp.recv(state.socket, 2) do
-        {:ok, header} ->
-          <<size::16>> = header
-          {:ok, data} = :gen_tcp.recv(state.socket, size)
+      case :gen_tcp.recv(state.socket, 0) do
+        {:ok, data} ->
           data = :erlang.binary_to_term(data)
           IO.puts("Acceptor #{state.id} got data #{inspect(data)}")
 
@@ -130,10 +128,10 @@ defmodule CoolTcpServer do
           }
 
           response_binary = :erlang.term_to_binary(response)
-          response_size = byte_size(response_binary)
-          data_binary = <<response_size::16>> <> response_binary
+          # response_size = byte_size(response_binary)
+          # data_binary = <<response_size::16>> <> response_binary
 
-          :gen_tcp.send(state.socket, data_binary)
+          :gen_tcp.send(state.socket, response_binary)
           {:noreply, state, {:continue, :receive_data}}
 
         {:error, error} ->

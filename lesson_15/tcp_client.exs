@@ -21,7 +21,7 @@ defmodule TcpClient do
     options = [
       :binary,
       {:active, true},
-      {:packet, :raw}
+      {:packet, 2}
     ]
 
     IO.puts("TCP Client started")
@@ -34,10 +34,8 @@ defmodule TcpClient do
   @impl true
   def handle_call({:send, data}, _from, state) do
     bin_data = :erlang.term_to_binary(data)
-    size = byte_size(bin_data)
-    header = <<size::16>>
-    IO.puts("Client prepared data: header #{inspect(header)}, data #{inspect(bin_data)}")
-    :gen_tcp.send(state.socket, header <> bin_data)
+    IO.puts("Client prepared data #{inspect(bin_data)}")
+    :gen_tcp.send(state.socket, bin_data)
     IO.puts("Client send #{inspect(data)} to #{inspect(state.socket)}")
     {:reply, :ok, state}
   end
@@ -50,8 +48,8 @@ defmodule TcpClient do
 
   @impl true
   def handle_info({:tcp, socket, data_binary}, state) do
-    <<_header::16, rest::binary>> = data_binary
-    data = :erlang.binary_to_term(rest)
+    # <<_header::16, rest::binary>> = data_binary
+    data = :erlang.binary_to_term(data_binary)
     IO.puts("Client got data #{inspect(data)} from #{inspect(socket)}")
     {:noreply, state}
   end
