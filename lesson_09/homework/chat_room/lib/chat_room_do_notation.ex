@@ -3,95 +3,45 @@ defmodule ChatRoom do
 
   @spec join_room(M.user_name(), M.room_name()) :: :ok | {:error, atom}
   def join_room(user_name, room_name) do
-    state = %{user_name: user_name, room_name: room_name}
-
-    pipeline(state, [
-      &step1/1,
-      &step2/1,
-      &step3/1,
-      &step4/1
-    ])
+    with(
+      {:ok, user} <- validate_user(user_name),
+      {:ok, room} <- validate_room(room_name),
+      :ok <- validate_access(room, user),
+      :ok <- validate_room_reach_limit(room)
+    ) do
+      :ok
+    end
   end
 
-  def step1(%{user_name: user_name} = state) do
+  def validate_user(user_name) do
     case get_user(user_name) do
-      {:ok, user} ->
-        state = Map.put(state, :user, user)
-        {:ok, state}
-
-      {:error, _} ->
-        {:error, :user_not_found}
+      {:ok, user} -> {:ok, user}
+      {:error, :not_found} -> {:error, :user_not_found}
     end
   end
 
-  def step2(%{room_name: room_name} = state) do
+  def validate_room(room_name) do
     case get_room(room_name) do
-      {:ok, room} ->
-        state = Map.put(state, :room, room)
-        {:ok, state}
-
-      {:error, _} ->
-        {:error, :room_not_found}
+      {:ok, room} -> {:ok, room}
+      {:error, :not_found} -> {:error, :room_not_found}
     end
   end
 
-  def step3(%{room: room, user: user} = state) do
+  def validate_access(room, user) do
     if public?(room) do
-      {:ok, state}
+      :ok
     else
       case member?(user, room) do
-        true -> {:ok, state}
+        true -> :ok
         false -> {:error, :not_allowed}
       end
     end
   end
 
-  def step4(%{room: room} = _state) do
+  def validate_room_reach_limit(room) do
     case reached_limit?(room) do
       false -> :ok
       true -> {:error, :room_reached_limit}
-    end
-  end
-
-  def pipeline(state, fun_list) do
-    Enum.reduce(
-      fun_list,
-      {:ok, state},
-      fn
-        f, {:ok, state} -> f.(state)
-        _, {:error, reason} -> {:error, reason}
-      end
-    )
-  end
-
-  def join_room_case(user_name, room_name) do
-    case get_user(user_name) do
-      {:ok, user} ->
-        case get_room(room_name) do
-          {:ok, room} ->
-            case reached_limit?(room) do
-              true ->
-                {:error, :room_reached_limit}
-
-              false ->
-                case public?(room) do
-                  true ->
-                    :ok
-
-                  false ->
-                    case member?(user, room) do
-                      true -> :ok
-                      false -> {:error, :not_allowed}
-                    end
-                end
-            end
-
-          {:error, :not_found} ->
-            {:error, :room_not_found}
-        end
-
-      {:error, :not_found} ->
-        {:error, :user_not_found}
     end
   end
 
